@@ -36,6 +36,10 @@
                 "mjs": "never"
             }
         ],
+        "import/no-extraneous-dependencies": [
+            "error",
+            { "devDependencies": true }
+        ],
         "@typescript-eslint/naming-convention": [
             "error",
             {
