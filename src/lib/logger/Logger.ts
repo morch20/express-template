@@ -1,9 +1,12 @@
 import type pino from "pino";
+import config from "../configs/config";
 
 export default class Logger {
     constructor(private logger: pino.Logger<never>) {}
 
     debug(message: string, metadata?: object): void {
+        if (config.NODE_ENV === "test") return;
+
         if (metadata) {
             this.logger.debug(metadata, message);
         } else {
@@ -12,6 +15,8 @@ export default class Logger {
     }
 
     error(message: string, metadata?: object): void {
+        if (config.NODE_ENV === "test") return;
+
         if (metadata) {
             this.logger.error(metadata, message);
         } else {
@@ -20,6 +25,8 @@ export default class Logger {
     }
 
     info(message: string, metadata?: object): void {
+        if (config.NODE_ENV === "test") return;
+
         if (metadata) {
             this.logger.info(metadata, message);
         } else {
@@ -28,6 +35,8 @@ export default class Logger {
     }
 
     warning(message: string, metadata?: object): void {
+        if (config.NODE_ENV === "test") return;
+
         if (metadata) {
             this.logger.warn(metadata, message);
         } else {
@@ -36,6 +45,8 @@ export default class Logger {
     }
 
     fatal(message: string, metadata?: object | undefined): void {
+        if (config.NODE_ENV === "test") return;
+
         if (metadata) {
             this.logger.fatal(metadata, message);
         } else {
