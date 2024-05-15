@@ -61,11 +61,17 @@ const expressLogger = pinoHttp({
     customErrorMessage: (req, res, error) =>
         `${req.method} endpoint: ${req.url} ${res.statusCode} - error: ${error.message}`,
     customSuccessMessage: (req, res, responseTime) =>
-        `${req.method} endpoint: ${req.url} ${res.statusCode} - ${responseTime} ms`,
+        `${req.method} endpoint: ${req.url} ${res.statusCode} in ${responseTime} ms`,
     serializers: {
-        req: () => undefined,
+        req: (value) => ({
+            id: value.id,
+            query: value.query,
+            body: value.body,
+            remoteAddress: value.remoteAddress,
+            remotePort: value.remotePort,
+        }),
         res: () => undefined,
-        // err: () => undefined, // comment this line to show the error object only when errors occur
+        err: () => undefined,
     },
 });
 const logger = new Logger(pinoLogger);
