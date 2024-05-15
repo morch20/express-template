@@ -10,4 +10,5 @@ module.exports = {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         "@/(.*)": "<rootDir>/src/$1",
     },
+    modulePathIgnorePatterns: ["dist"],
 };
