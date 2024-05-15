@@ -8,6 +8,12 @@ export default class AppError extends Error {
 
     private errorType: string;
 
+    /**
+     * Creates an instance of AppError.
+     * @param message A descriptive message for the error.
+     * @param statusCode The HTTP status code associated with the error (must be a **number** of keyof HttpStatus).
+     * @param showStack Flag to indicate whether to include stack trace in error message (default: false).
+     */
     constructor(
         message: string,
         statusCode: keyof HttpStatus,
@@ -15,18 +21,30 @@ export default class AppError extends Error {
     ) {
         super(message);
         this.message = message;
-        this.errorType = httpStatus[statusCode] as string;
         this.statusCode = Number(statusCode) || 500;
+        this.errorType = httpStatus[
+            this.statusCode as keyof HttpStatus
+        ] as string;
 
         if (config.NODE_ENV === "production" || showStack) {
             Error.captureStackTrace(this, this.constructor);
-        } else this.stack = undefined;
+        } else {
+            this.stack = undefined;
+        }
     }
 
+    /**
+     * Retrieves the HTTP status code associated with the error.
+     * @returns The HTTP status code (number).
+     */
     getStatusCode() {
         return this.statusCode;
     }
 
+    /**
+     * Retrieves the descriptive error type associated with the HTTP status code.
+     * @returns The error type description (string).
+     */
     getErrorType() {
         return this.errorType;
     }
