@@ -6,7 +6,7 @@
     "scripts": {
         "clean": "rimraf dist coverage",
         "test": "jest",
-        "test:watch": "jest --watch",
+        "test:watch": "jest --verbose --watch",
         "test:coverage": "jest --coverage",
         "dev": "nodemon -r tsconfig-paths/register src/index.ts",
         "build": "tsc --project tsconfig.build.json",
