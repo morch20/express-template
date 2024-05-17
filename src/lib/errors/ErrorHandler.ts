@@ -25,13 +25,21 @@ export default function errorHandler(
         //             'Duplicate "name" error. A resource cannot have an already existing name.',
         //     };
         // }
+        const statusCode = (error as any)?.statusCode
+            ? httpStatus.BAD_REQUEST
+            : httpStatus.INTERNAL_SERVER_ERROR;
+
+        const message = (error as any)?.message || httpStatus[statusCode];
 
         logger.error("Unknown error has occurred!", error);
 
-        error = new AppError(
-            "Something went wrong in the server.",
-            httpStatus.INTERNAL_SERVER_ERROR
-        );
+        if ((error as any)?.statusCode)
+            error = new AppError(message, statusCode);
+        else
+            error = new AppError(
+                "Something went wrong in the server.",
+                httpStatus.INTERNAL_SERVER_ERROR
+            );
     } else logger.error(error.message, err);
 
     res.status(error.getStatusCode()).json({
