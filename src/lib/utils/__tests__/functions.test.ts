@@ -85,5 +85,51 @@ describe("Testing utilities functions", () => {
             // Expect that next is called without any error
             expect(next).not.toHaveBeenCalledWith(expect.any(Error));
         });
+
+        test("should call next with error if function throws an error without async operation", async () => {
+            const asyncFn = (
+                req: Request,
+                res: Response,
+                next?: NextFunction
+            ) => {
+                // No async operation
+                if (next) next(new Error("Test error"));
+            };
+
+            const req = {} as Request;
+            const res = {} as Response;
+            const next = jest.fn();
+
+            const wrappedFn = catchAsync(asyncFn);
+            await wrappedFn(req, res, next);
+
+            expect(next).toHaveBeenCalledWith(expect.any(Error));
+        });
+
+        test("should call next without error if function succeeds without async operation", async () => {
+            // Mock function that succeeds
+            const asyncFunction = async (
+                req: Request,
+                res: Response,
+                next?: NextFunction
+            ) => {
+                // Do not some async operation (e.g., fetch data from database)
+                // Simulate success by not throwing any error
+            };
+
+            // Create a wrapped async function using catchAsync
+            const wrappedAsyncFunction = catchAsync(asyncFunction);
+
+            // Mock Express request, response, and next functions
+            const req = {} as Request;
+            const res = {} as Response;
+            const next = jest.fn() as NextFunction;
+
+            // Call the wrapped async function
+            await wrappedAsyncFunction(req, res, next);
+
+            // Expect that next is called without any error
+            expect(next).not.toHaveBeenCalledWith(expect.any(Error));
+        });
     });
 });
