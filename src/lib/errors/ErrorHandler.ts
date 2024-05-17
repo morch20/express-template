@@ -46,5 +46,6 @@ export default function errorHandler(
         statusCode: error.getStatusCode(),
         message: error.message,
         errorType: error.getErrorType(),
+        data: error.getMetaData(),
     });
 }
