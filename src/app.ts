@@ -6,6 +6,7 @@ import httpStatus from "http-status";
 import config from "@/lib/configs/config";
 import { expressLogger } from "@/lib/logger";
 import { AppError, ErrorHandler } from "@/lib/errors";
+import api from "./api";
 
 const app = express();
 
@@ -31,6 +32,9 @@ app.get("/", (req: Request, res: Response) => {
         `Hello Word! ${httpStatus[httpStatus.INTERNAL_SERVER_ERROR]}`
     );
 });
+
+// all routes here
+app.use(api);
 
 // send back a 404 error for any unknown api request
 app.all("*", (req, res, next) => {
