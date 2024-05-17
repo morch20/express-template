@@ -26,12 +26,6 @@ app.use(compression());
 // enable cors
 app.use(cors());
 
-if (config.NODE_ENV === "test")
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    app.get("/error", (req, res) => {
-        throw new Error("Some Error");
-    });
-
 app.get("/", (req: Request, res: Response) => {
     res.status(httpStatus.INTERNAL_SERVER_ERROR).send(
         `Hello Word! ${httpStatus[httpStatus.INTERNAL_SERVER_ERROR]}`
