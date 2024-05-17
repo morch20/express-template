@@ -3,11 +3,9 @@ import helmet from "helmet";
 import cors from "cors";
 import compression from "compression";
 import httpStatus from "http-status";
-import sample from "@/middlewares/sample";
 import config from "@/lib/configs/config";
 import { expressLogger } from "@/lib/logger";
 import { AppError, ErrorHandler } from "@/lib/errors";
-import doMath from "./math";
 
 const app = express();
 
@@ -36,7 +34,7 @@ if (config.NODE_ENV === "test")
 
 app.get("/", (req: Request, res: Response) => {
     res.status(httpStatus.INTERNAL_SERVER_ERROR).send(
-        `Hello Word! ${doMath(5, 5)} ${sample()} ${httpStatus[httpStatus.INTERNAL_SERVER_ERROR]}`
+        `Hello Word! ${httpStatus[httpStatus.INTERNAL_SERVER_ERROR]}`
     );
 });
 
