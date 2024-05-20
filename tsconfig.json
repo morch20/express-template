@@ -16,6 +16,6 @@
         "strict": true /* Enable all strict type-checking options. */,
         "skipLibCheck": true /* Skip type checking all .d.ts files. */
     },
-    "include": ["src", "jest.config.js"],
+    "include": ["src", "jest.config.js", "drizzle.config.ts"],
     "exclude": ["dist", "node_modules", "coverage"]
 }

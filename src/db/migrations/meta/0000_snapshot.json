@@ -1,0 +1,43 @@
+{
+    "id": "e7a630ac-909a-40e8-b304-79b06e749eaf",
+    "prevId": "00000000-0000-0000-0000-000000000000",
+    "version": "6",
+    "dialect": "postgresql",
+    "tables": {
+        "public.resource": {
+            "name": "resource",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "serial",
+                    "primaryKey": true,
+                    "notNull": true
+                },
+                "name": {
+                    "name": "name",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "ip": {
+                    "name": "ip",
+                    "type": "varchar(225)",
+                    "primaryKey": false,
+                    "notNull": true
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {},
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {}
+        }
+    },
+    "enums": {},
+    "schemas": {},
+    "_meta": {
+        "columns": {},
+        "schemas": {},
+        "tables": {}
+    }
+}
