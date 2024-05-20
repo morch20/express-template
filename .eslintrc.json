@@ -3,9 +3,10 @@
         "airbnb-base",
         "airbnb-typescript/base",
         "plugin:jest/recommended",
+        "plugin:drizzle/recommended",
         "prettier"
     ],
-    "plugins": ["jest"],
+    "plugins": ["jest", "drizzle"],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
         "project": "./tsconfig.json"

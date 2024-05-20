@@ -9,6 +9,7 @@ resourceRoute
     .post(validate(resourceSchema), resourceController.createResource)
     .get(resourceController.getResources);
 
+// eslint-disable-next-line drizzle/enforce-delete-with-where
 resourceRoute
     .route("/:userId")
     .get(resourceController.getResource)
