@@ -6,7 +6,8 @@ import { ZodSchema, ZodError } from "zod";
 export default function validate(schema: ZodSchema) {
     return (req: Request, res: Response, next: NextFunction) => {
         try {
-            schema.parse(req.body);
+            const parsedBody = schema.parse(req.body);
+            req.body = parsedBody;
             next();
         } catch (err) {
             if (err instanceof ZodError) {
