@@ -1,6 +1,6 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status";
-import { ZodError, ZodSchema } from "zod";
+import { ZodError, ZodSchema, z } from "zod";
 import { AppError } from "@/lib/errors";
 import validate from "../validate";
 
@@ -20,13 +20,6 @@ describe("validate middleware", () => {
         } as unknown as Request;
         res = {} as unknown as Response;
         next = jest.fn();
-    });
-
-    it("should call next middleware when request body is valid", () => {
-        validate(testSchema)(req, res, next);
-
-        expect(testSchema.parse).toHaveBeenCalledWith(req.body);
-        expect(next).toHaveBeenCalled();
     });
 
     it("should throw AppError when request body is invalid", () => {
@@ -53,5 +46,39 @@ describe("validate middleware", () => {
 
         expect(testSchema.parse).toHaveBeenCalledWith(req.body);
         expect(next).toHaveBeenCalledWith(otherError);
+    });
+});
+
+describe("validate middleware with correct body", () => {
+    let req: Request;
+    let res: Response;
+    let next: NextFunction;
+    const testSchema2 = z.object({
+        name: z.string().min(1),
+        age: z.number().int().positive(),
+    });
+
+    beforeEach(() => {
+        req = { body: { name: "John Doe", age: 30 } } as Request;
+        res = {} as Response;
+        next = jest.fn() as NextFunction;
+
+        // Mock the schema's parse method
+        jest.spyOn(testSchema2, "parse");
+    });
+
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
+    it("should call next middleware when request body is valid", () => {
+        validate(testSchema2)(req, res, next);
+
+        // Check if parse method is called with req.body
+        expect(testSchema2.parse).toHaveBeenCalledWith(req.body);
+
+        // Check if next middleware is called
+        expect(next).toHaveBeenCalled();
+        expect(next).not.toHaveBeenCalledWith(expect.any(Error));
     });
 });

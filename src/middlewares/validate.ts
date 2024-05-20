@@ -3,6 +3,12 @@ import { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status";
 import { ZodSchema, ZodError } from "zod";
 
+/**
+ * Middleware to validate the request body against a provided Zod schema.
+ *
+ * @param {ZodSchema} schema - The Zod schema to validate the request body against.
+ * @returns {Function} Express middleware function.
+ */
 export default function validate(schema: ZodSchema) {
     return (req: Request, res: Response, next: NextFunction) => {
         try {
