@@ -32,7 +32,7 @@ describe("validate middleware", () => {
 
         expect(testSchema.parse).toHaveBeenCalledWith(req.body);
         expect(next).toHaveBeenCalledWith(
-            new AppError("Invalid body data", httpStatus.BAD_REQUEST, false, [])
+            new AppError("Invalid data", httpStatus.BAD_REQUEST, false, [])
         );
     });
 

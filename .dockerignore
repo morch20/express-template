@@ -1,3 +1,15 @@
-node_modules
+dist
+.DS_Store
 .git
 .gitignore
+README.md
+LICENSE
+coverage
+jest.config.js
+node_modules
+scripts
+**/__tests__/**
+**/__mocks__/**
+src/tests
+.vscode
+.env.example

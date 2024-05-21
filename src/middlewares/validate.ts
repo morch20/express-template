@@ -25,7 +25,7 @@ export default function validate(schema: ZodSchema) {
 
                 next(
                     new AppError(
-                        "Invalid body data",
+                        "Invalid data",
                         httpStatus.BAD_REQUEST,
                         false,
                         formattedErrors
