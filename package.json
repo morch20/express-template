@@ -13,7 +13,7 @@
         "start": "node -r ts-node/register -r tsconfig-paths/register dist/src/index.js",
         "db:generate": "drizzle-kit generate",
         "db:drop": "drizzle-kit drop",
-        "db:migrate": "ts-node -r tsconfig-paths/register ./src/db/migrate.ts",
+        "db:migrate": "ts-node -r tsconfig-paths/register ./src/db/migrate.script.ts",
         "lint": "eslint src",
         "prettier:check": "prettier --check .",
         "format": "prettier --write .",
