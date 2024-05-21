@@ -26,13 +26,3 @@ services:
         depends_on:
             db:
                 condition: service_healthy
-
-    pgadmin:
-        image: dpage/pgadmin4
-        container_name: pgadmin4
-        restart: always
-        environment:
-            PGADMIN_DEFAULT_EMAIL: email@email.com
-            PGADMIN_DEFAULT_PASSWORD: 1234
-        ports:
-            - 5050:80
