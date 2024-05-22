@@ -16,8 +16,14 @@ const migrationClient = postgres(config.DB_URL, {
 
 export default async function migrateDB() {
     logger.info("Started migration");
+
+    const migrationsFolder =
+        config.NODE_ENV === "production"
+            ? "./dist/src/db/migrations"
+            : "./src/db/migrations";
+
     await migrate(drizzle(migrationClient), {
-        migrationsFolder: "./src/db/migrations",
+        migrationsFolder,
     });
 
     await migrationClient.end();
