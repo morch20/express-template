@@ -2,7 +2,20 @@ import { z } from "zod";
 import * as dotenv from "dotenv";
 import path from "node:path";
 
-dotenv.config({ path: path.join(__dirname, "../../../.env") });
+const getEnvFile = () => {
+    // Do not need to do anything inside of a docker container/production
+    if (process.env.NODE_ENV === "production") return;
+
+    // In development or testing we need to get .env file
+    if (!process.env.NODE_ENV || process.env.NODE_ENV === "test")
+        dotenv.config({ path: path.join(__dirname, "../../../.env") });
+
+    // In case you try to do: npm run start in your local machine, we need to get the .env file but one folder back more because of /dist
+    if (!process.env.NODE_ENV)
+        dotenv.config({ path: path.join(__dirname, "../../../../.env") });
+};
+
+getEnvFile();
 
 const envVariablesSchema = z.object({
     NODE_ENV: z.enum(["development", "production", "test"]),
