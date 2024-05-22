@@ -1,9 +1,13 @@
+import "module-alias/register";
+import config from "@/lib/configs/config";
+import { logger } from "@/lib/logger";
 import app from "./app";
-import { logger } from "./lib/logger";
-import config from "./lib/configs/config";
+import migrateDB from "./db/migrate";
 
-const server = app.listen(config.PORT, () => {
-    logger.info(`Listening to port: ${config.PORT}`);
+const server = app.listen(config.PORT, async () => {
+    logger.info(`Listening to port: ${config.PORT} in ${config.NODE_ENV}`);
+
+    if (config.NODE_ENV === "production") await migrateDB();
 });
 
 const exitHandler = () => {
