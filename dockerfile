@@ -11,6 +11,9 @@ RUN npm ci
 # Copy source code (and all other relevant files)
 COPY --chown=node:node . .
 
+# In case the migration files are not up to date with the schemas
+RUN npm run db:generate
+
 # Build code
 RUN npm run build
 
