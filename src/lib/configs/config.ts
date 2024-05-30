@@ -29,6 +29,7 @@ const envVariablesSchema = z.object({
     DB_DATABASE_NAME: z.string().trim().min(1),
     DB_USERNAME: z.string().trim().min(1),
     DB_PASSWORD: z.string().trim().min(1),
+    REDIS_URL: z.string().trim().min(1).describe("Redis connection url"),
 });
 
 const envVariables = envVariablesSchema.safeParse({
@@ -50,6 +51,7 @@ const config = {
     DB_DATABASE_NAME: envVariables.data.DB_DATABASE_NAME,
     DB_USERNAME: envVariables.data.DB_USERNAME,
     DB_PASSWORD: envVariables.data.DB_PASSWORD,
+    REDIS_URL: envVariables.data.REDIS_URL,
 };
 
 export default config;
