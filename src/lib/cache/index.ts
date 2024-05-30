@@ -2,7 +2,7 @@ import { createClient, RedisClientType } from "redis";
 import { logger } from "../logger";
 import Cache from "./Cache";
 
-function getClient() {
+export function getClient() {
     const client: RedisClientType = createClient();
 
     client.on("ready", () => logger.info("Redis: Ready"));
