@@ -1,9 +1,12 @@
 import { createClient, RedisClientType } from "redis";
 import { logger } from "../logger";
 import Cache from "./Cache";
+import config from "../configs/config";
 
 export function getClient() {
-    const client: RedisClientType = createClient();
+    const client: RedisClientType = createClient({
+        url: config.REDIS_URL,
+    });
 
     client.on("ready", () => logger.info("Redis: Ready"));
     client.on("reconnecting", () => logger.info("Redis: Reconnecting"));
