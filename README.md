@@ -24,6 +24,13 @@ npm run dev
 
 Open http://localhost:5000 with your favorite browser to see your project.
 
+#### Make sure to change the following:
+
+-   Name of the project in the `package.json`.
+-   Environment variables in the `.env` and `.env.production` files.
+-   Passwords, names, ports, etc... in `docker-compose.yml` and `dockerfile` files.
+-   Make sure the ports, names, password, etc... are the **same** in the all the files.
+
 ## Table of Contents
 
 -   [Features](#features)
