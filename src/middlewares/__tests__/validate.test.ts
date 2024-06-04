@@ -28,7 +28,7 @@ describe("validate middleware", () => {
             throw zodError;
         });
 
-        validate(testSchema)(req, res, next);
+        validate(testSchema, "body")(req, res, next);
 
         expect(testSchema.parse).toHaveBeenCalledWith(req.body);
         expect(next).toHaveBeenCalledWith(
@@ -42,7 +42,7 @@ describe("validate middleware", () => {
             throw otherError;
         });
 
-        validate(testSchema)(req, res, next);
+        validate(testSchema, "body")(req, res, next);
 
         expect(testSchema.parse).toHaveBeenCalledWith(req.body);
         expect(next).toHaveBeenCalledWith(otherError);
@@ -72,10 +72,86 @@ describe("validate middleware with correct body", () => {
     });
 
     it("should call next middleware when request body is valid", () => {
-        validate(testSchema2)(req, res, next);
+        validate(testSchema2, "body")(req, res, next);
 
         // Check if parse method is called with req.body
         expect(testSchema2.parse).toHaveBeenCalledWith(req.body);
+
+        // Check if next middleware is called
+        expect(next).toHaveBeenCalled();
+        expect(next).not.toHaveBeenCalledWith(expect.any(Error));
+    });
+});
+
+describe("validate middleware with correct queries", () => {
+    let req: Request;
+    let res: Response;
+    let next: NextFunction;
+    const testSchema3 = z.object({
+        name: z.string().min(1),
+        age: z.coerce.number().int().positive(),
+    });
+
+    beforeEach(() => {
+        req = {
+            query: { name: "John Doe", age: "30" },
+        } as unknown as Request;
+        res = {} as Response;
+        next = jest.fn() as NextFunction;
+
+        // Mock the schema's parse method
+        jest.spyOn(testSchema3, "parse");
+    });
+
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
+    it("should call next middleware when request query is valid", () => {
+        validate(testSchema3, "query")(req, res, next);
+
+        // Check if parse method is returns proper req.query
+        expect(testSchema3.parse).toHaveReturnedWith({
+            name: "John Doe",
+            age: 30,
+        });
+
+        // Check if next middleware is called
+        expect(next).toHaveBeenCalled();
+        expect(next).not.toHaveBeenCalledWith(expect.any(Error));
+    });
+});
+
+describe("validate middleware with correct params", () => {
+    let req: Request;
+    let res: Response;
+    let next: NextFunction;
+    const testSchema3 = z.object({
+        id: z.coerce.number().int().positive(),
+    });
+
+    beforeEach(() => {
+        req = {
+            params: { id: "30" },
+        } as unknown as Request;
+        res = {} as Response;
+        next = jest.fn() as NextFunction;
+
+        // Mock the schema's parse method
+        jest.spyOn(testSchema3, "parse");
+    });
+
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
+    it("should call next middleware when request params is valid", () => {
+        validate(testSchema3, "params")(req, res, next);
+
+        // Check if parse method is returns proper req.params
+        expect(testSchema3.parse).toHaveReturnedWith({
+            id: 30,
+        });
 
         // Check if next middleware is called
         expect(next).toHaveBeenCalled();
