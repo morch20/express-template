@@ -6,14 +6,18 @@ import { ZodSchema, ZodError } from "zod";
 /**
  * Middleware to validate the request body against a provided Zod schema.
  *
- * @param {ZodSchema} schema - The Zod schema to validate the request body against.
+ * @param {ZodSchema} schema - The Zod schema to validate the request body, query, or params against.
+ * @param {"body" | "query" | "params"} from - The request's object to validate from.
  * @returns {Function} Express middleware function.
  */
-export default function validate(schema: ZodSchema) {
+export default function validate(
+    schema: ZodSchema,
+    from: "body" | "query" | "params"
+) {
     return (req: Request, res: Response, next: NextFunction) => {
         try {
-            const parsedBody = schema.parse(req.body);
-            req.body = parsedBody;
+            const parsedBody = schema.parse(req[from]);
+            req[from] = parsedBody;
             next();
         } catch (err) {
             if (err instanceof ZodError) {
