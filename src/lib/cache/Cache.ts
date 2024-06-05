@@ -30,6 +30,7 @@ export default class Cache {
             await this.client.set(key, value, {
                 EX: expireAfter,
             });
+            logger.info(`Setting ${key} in cache`);
         } catch (error) {
             logger.error("Error setting cache", error as object);
         }
@@ -42,9 +43,44 @@ export default class Cache {
      */
     public async get(key: string): Promise<string | null> {
         try {
+            logger.info(`Getting ${key} from cache`);
             return await this.client.get(key);
         } catch (error) {
             logger.error("Error getting cache", error as object);
+            return null;
+        }
+    }
+
+    /**
+     * Deletes a value from the cache by its key.
+     * @param {string} key - The key of the value to delete.
+     * @returns A promise that resolves to the Redis response string or null if an error occurs.
+     */
+    public async del(key: string): Promise<number | null> {
+        try {
+            logger.info(`Deleting ${key} from cache`);
+            return await this.client.del(key);
+        } catch (error) {
+            logger.error("Error deleting cache", error as object);
+            return null;
+        }
+    }
+
+    /**
+     * Deletes all the keys of the given pattern.
+     * @param pattern - The pattern of the keys to delete.
+     * @returns A promise that resolves to the Redis response of numbers of deleted keys or null if an error occurs.
+     */
+    public async deleteByPattern(pattern: string): Promise<number | null> {
+        try {
+            logger.info(`Deleting cache entries with pattern: ${pattern}`);
+            const keys = await this.client.keys(pattern);
+            if (keys.length > 0) {
+                return await this.client.del(keys);
+            }
+            return 0;
+        } catch (error) {
+            logger.error("Error deleting cache by pattern", error as object);
             return null;
         }
     }
@@ -82,9 +118,19 @@ export default class Cache {
 
     /**
      * Closes the Redis client connection.
-     * @returns A promise that resolves when the client is successfully closed.
+     * @returns A promise that resolves closing the client with a response of a "Ok" or null if an error occurs.
      */
-    public async close(): Promise<string> {
-        return this.client.quit();
+    public async close(): Promise<string | null> {
+        try {
+            const result = await this.client.quit();
+            logger.info("Redis client connection closed successfully.");
+            return result;
+        } catch (error) {
+            logger.error(
+                "Error closing Redis client connection",
+                error as object
+            );
+            return null;
+        }
     }
 }
