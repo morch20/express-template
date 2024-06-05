@@ -7,10 +7,7 @@ const resourceRoute = Router();
 
 resourceRoute
     .route("/")
-    .post(
-        validate(resourceSchema, "body"),
-        resourceController.createResource
-    )
+    .post(validate(resourceSchema, "body"), resourceController.createResource)
     .get(validate(paginationSchema, "query"), resourceController.getResources);
 
 // eslint-disable-next-line drizzle/enforce-delete-with-where
