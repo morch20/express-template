@@ -13,6 +13,9 @@ describe("Testing Cache class", () => {
         mockClient = {
             set: jest.fn(),
             get: jest.fn(),
+            del: jest.fn(),
+            deleteByPattern: jest.fn(),
+            keys: jest.fn(),
             flushAll: jest.fn(),
             quit: jest.fn(),
             on: jest.fn(),
@@ -71,6 +74,56 @@ describe("Testing Cache class", () => {
         expect(result).toBeNull();
     });
 
+    it("should delete a value from the cache", async () => {
+        mockClient.del.mockResolvedValue(1);
+        const result = await cache.del("key");
+
+        expect(mockClient.del).toHaveBeenCalledWith("key");
+        expect(result).toBe(1);
+    });
+
+    it("should return null if deleting a value fails", async () => {
+        mockClient.del.mockRejectedValue(new Error("Error"));
+        const result = await cache.del("key");
+
+        expect(logger.error).toHaveBeenCalledWith(
+            "Error deleting cache",
+            expect.any(Error)
+        );
+        expect(result).toBeNull();
+    });
+
+    it("should delete a pattern value from the cache", async () => {
+        mockClient.del.mockResolvedValue(2);
+        mockClient.keys.mockResolvedValue(["test-key1", "test-key2"]);
+        const result = await cache.deleteByPattern("test-pattern*");
+
+        expect(mockClient.keys).toHaveBeenCalledWith("test-pattern*");
+        expect(mockClient.del).toHaveBeenCalledWith(["test-key1", "test-key2"]);
+        expect(result).toBe(2);
+    });
+
+    it("should return 0 if not key is found in a pattern", async () => {
+        mockClient.del.mockResolvedValue(0);
+        mockClient.keys.mockResolvedValue([]);
+        const result = await cache.deleteByPattern("test-pattern*");
+
+        expect(mockClient.keys).toHaveBeenCalledWith("test-pattern*");
+        expect(mockClient.del).toHaveBeenCalledTimes(0);
+        expect(result).toBe(0);
+    });
+
+    it("should return null if deleting a pattern value fails", async () => {
+        mockClient.del.mockRejectedValue(new Error("Error"));
+        const result = await cache.deleteByPattern("key");
+
+        expect(logger.error).toHaveBeenCalledWith(
+            "Error deleting cache by pattern",
+            expect.any(Error)
+        );
+        expect(result).toBeNull();
+    });
+
     it("should flush the cache", async () => {
         mockClient.flushAll.mockResolvedValue("OK");
         const result = await cache.flush();
@@ -109,5 +162,16 @@ describe("Testing Cache class", () => {
 
         expect(mockClient.quit).toHaveBeenCalled();
         expect(result).toBe("OK");
+    });
+
+    it("should cause error when closing client connection", async () => {
+        mockClient.quit.mockRejectedValue(new Error("error"));
+        const result = await cache.close();
+
+        expect(logger.error).toHaveBeenCalledWith(
+            "Error closing Redis client connection",
+            expect.any(Error)
+        );
+        expect(result).toBeNull();
     });
 });
