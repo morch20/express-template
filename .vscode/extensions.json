@@ -20,6 +20,7 @@
         "ms-vscode.remote-explorer",
         "eamodio.gitlens",
         "codeium.codeium",
-        "ritwickdey.liveserver"
+        "ritwickdey.liveserver",
+        "ms-vscode-remote.remote-wsl"
     ]
 }
