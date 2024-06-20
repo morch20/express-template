@@ -32,7 +32,7 @@ export default class FileCRUD {
      * @param errorMessage - The error message to throw if the callback fails.
      * @returns A promise that resolves with the result of the callback or void.
      */
-    private static async withLock(
+    public static async withLock(
         filePath: string,
         callback: () => Promise<void | string>,
         errorMessage: string
