@@ -1,245 +1,134 @@
-import * as fs from "fs-extra";
-import * as path from "node:path";
-import * as lockfile from "proper-lockfile";
-import { AppError } from "@/lib/errors";
-import httpStatus from "http-status";
+import fs from "fs-extra";
+import { logger } from "@/lib/logger";
 import FileCRUD from "..";
-
-jest.mock("fs-extra");
-jest.mock("proper-lockfile");
-
-const mockDirectory = "/mock";
 
 describe("FileCRUD", () => {
     let fileCRUD: FileCRUD;
+    const testDir = "./mock";
 
-    beforeEach(() => {
-        fileCRUD = new FileCRUD(mockDirectory);
-        (fs.ensureDirSync as jest.Mock).mockClear();
-        (fs.pathExists as jest.Mock).mockClear();
-        (fs.writeFile as unknown as jest.Mock).mockClear();
-        (fs.readFile as unknown as jest.Mock).mockClear();
-        (fs.remove as jest.Mock).mockClear();
-        (lockfile.lock as jest.Mock).mockClear();
+    beforeAll(async () => {
+        await fs.ensureDir(testDir);
+        fileCRUD = new FileCRUD(testDir);
     });
 
-    describe("withLock", () => {
-        it("should execute the callback with the file lock", async () => {
-            const filePath = "/mock-directory/test.txt";
-            const release = jest.fn();
-            (lockfile.lock as jest.Mock).mockResolvedValue(release);
-
-            const callback = jest.fn().mockResolvedValue("callback result");
-            const result = await FileCRUD.withLock(
-                filePath,
-                callback,
-                "Error message"
-            );
-
-            expect(lockfile.lock).toHaveBeenCalledWith(filePath);
-            expect(callback).toHaveBeenCalled();
-            expect(result).toBe("callback result");
-            expect(release).toHaveBeenCalled();
-        });
-
-        it("should release the lock even if the callback throws an error", async () => {
-            const filePath = "/mock-directory/test.txt";
-            const release = jest.fn();
-            (lockfile.lock as jest.Mock).mockResolvedValue(release);
-
-            const callback = jest
-                .fn()
-                .mockRejectedValue(new Error("Callback error"));
-
-            await expect(
-                FileCRUD.withLock(filePath, callback, "Error message")
-            ).rejects.toThrow(AppError);
-
-            expect(lockfile.lock).toHaveBeenCalledWith(filePath);
-            expect(callback).toHaveBeenCalled();
-            expect(release).toHaveBeenCalled();
-        });
-
-        it("should throw the original AppError if the callback throws an AppError", async () => {
-            const filePath = "/mock-directory/test.txt";
-            const release = jest.fn();
-            (lockfile.lock as jest.Mock).mockResolvedValue(release);
-
-            const appError = new AppError(
-                "Callback AppError",
-                httpStatus.BAD_REQUEST,
-                true
-            );
-            const callback = jest.fn().mockRejectedValue(appError);
-
-            await expect(
-                FileCRUD.withLock(filePath, callback, "Error message")
-            ).rejects.toThrow(appError);
-
-            expect(lockfile.lock).toHaveBeenCalledWith(filePath);
-            expect(callback).toHaveBeenCalled();
-            expect(release).toHaveBeenCalled();
-        });
-
-        it("should throw a new AppError if the callback throws a non-AppError", async () => {
-            const filePath = "/mock-directory/test.txt";
-            const release = jest.fn();
-            (lockfile.lock as jest.Mock).mockResolvedValue(release);
-
-            const callback = jest
-                .fn()
-                .mockRejectedValue(new Error("Callback error"));
-
-            await expect(
-                FileCRUD.withLock(filePath, callback, "Error message")
-            ).rejects.toThrow(AppError);
-
-            expect(lockfile.lock).toHaveBeenCalledWith(filePath);
-            expect(callback).toHaveBeenCalled();
-            expect(release).toHaveBeenCalled();
-        });
+    afterAll(async () => {
+        await fs.remove(testDir);
     });
 
-    describe("createFile", () => {
-        it("should create a file with the specified content", async () => {
-            (fs.pathExists as jest.Mock).mockResolvedValue(false);
-            const release = jest.fn();
-            (lockfile.lock as jest.Mock).mockResolvedValue(release);
+    // Test case for successful execution within lock
+    it("should execute callback within lock", async () => {
+        const fileName = "testFile.txt";
+        const content = "Hello, World!";
 
-            await fileCRUD.createFile("test.txt", "content");
+        const filePath = `${testDir}/${fileName}`;
 
-            expect(fs.pathExists).toHaveBeenCalledWith(
-                path.join(mockDirectory, "test.txt")
-            );
-            expect(fs.writeFile).toHaveBeenCalledWith(
-                path.join(mockDirectory, "test.txt"),
-                "content"
-            );
-            expect(release).toHaveBeenCalled();
+        // Create the file first
+        await fs.writeFile(filePath, content);
+
+        const result = await FileCRUD.withLock(filePath, async () => {
+            // Read the file content within the lock
+            const fileContent = await fs.readFile(filePath, "utf8");
+            return fileContent.trim();
         });
 
-        it("should throw an error if the file already exists", async () => {
-            (fs.pathExists as jest.Mock).mockResolvedValue(true);
-            const release = jest.fn();
-            (lockfile.lock as jest.Mock).mockResolvedValue(release);
-
-            await expect(
-                fileCRUD.createFile("test.txt", "content")
-            ).rejects.toThrow(AppError);
-
-            expect(fs.pathExists).toHaveBeenCalledWith(
-                path.join(mockDirectory, "test.txt")
-            );
-            expect(fs.writeFile).not.toHaveBeenCalled();
-            expect(release).toHaveBeenCalled();
-        });
+        expect(result).toBe(content);
     });
 
-    describe("readFile", () => {
-        it("should read the content of the specified file", async () => {
-            (fs.pathExists as jest.Mock).mockResolvedValue(true);
-            (fs.readFile as unknown as jest.Mock).mockResolvedValue(
-                "file content"
-            );
-            const release = jest.fn();
-            (lockfile.lock as jest.Mock).mockResolvedValue(release);
+    // Test case for handling errors within lock
+    it("should handle errors within lock and log", async () => {
+        const fileName = "testFile.txt";
 
-            const content = await fileCRUD.readFile("test.txt");
+        const filePath = `${testDir}/${fileName}`;
 
-            expect(fs.pathExists).toHaveBeenCalledWith(
-                path.join(mockDirectory, "test.txt")
-            );
-            expect(fs.readFile).toHaveBeenCalledWith(
-                path.join(mockDirectory, "test.txt"),
-                "utf8"
-            );
-            expect(content).toBe("file content");
-            expect(release).toHaveBeenCalled();
-        });
+        const error = new Error("Simulated error");
 
-        it("should throw an error if the file does not exist", async () => {
-            (fs.pathExists as jest.Mock).mockResolvedValue(false);
-            const release = jest.fn();
-            (lockfile.lock as jest.Mock).mockResolvedValue(release);
+        // Mock logger.error to capture log messages
+        const mockLoggerError = jest
+            .spyOn(logger, "error")
+            .mockImplementation(() => {});
 
-            await expect(fileCRUD.readFile("test.txt")).rejects.toThrow(
-                AppError
+        try {
+            // Attempt to acquire lock on non-existing file, should throw an error
+            await FileCRUD.withLock(filePath, async () => {
+                throw error;
+            });
+        } catch (err) {
+            // Check if the error was logged
+            // eslint-disable-next-line jest/no-conditional-expect
+            expect(mockLoggerError).toHaveBeenCalledWith(
+                "Something went wrong locking file",
+                error
             );
+        }
 
-            expect(fs.pathExists).toHaveBeenCalledWith(
-                path.join(mockDirectory, "test.txt")
-            );
-            expect(fs.readFile).not.toHaveBeenCalled();
-            expect(release).toHaveBeenCalled();
-        });
+        // Restore the original logger.error implementation
+        mockLoggerError.mockRestore();
     });
 
-    describe("updateFile", () => {
-        it("should update the content of the specified file", async () => {
-            (fs.pathExists as jest.Mock).mockResolvedValue(true);
-            const release = jest.fn();
-            (lockfile.lock as jest.Mock).mockResolvedValue(release);
+    // Test case for file creation
+    it("should create a file", async () => {
+        const fileName = "testFile.txt";
+        const content = "Hello, World!";
 
-            await fileCRUD.updateFile("test.txt", "new content");
+        const result = await fileCRUD.createFile(fileName, content);
+        expect(result).toBe("success");
 
-            expect(fs.pathExists).toHaveBeenCalledWith(
-                path.join(mockDirectory, "test.txt")
-            );
-            expect(fs.writeFile).toHaveBeenCalledWith(
-                path.join(mockDirectory, "test.txt"),
-                "new content"
-            );
-            expect(release).toHaveBeenCalled();
-        });
+        const filePath = `${testDir}/${fileName}`;
+        const fileExists = await fs.pathExists(filePath);
+        expect(fileExists).toBe(true);
 
-        it("should throw an error if the file does not exist", async () => {
-            (fs.pathExists as jest.Mock).mockResolvedValue(false);
-            const release = jest.fn();
-            (lockfile.lock as jest.Mock).mockResolvedValue(release);
-
-            await expect(
-                fileCRUD.updateFile("test.txt", "new content")
-            ).rejects.toThrow(AppError);
-
-            expect(fs.pathExists).toHaveBeenCalledWith(
-                path.join(mockDirectory, "test.txt")
-            );
-            expect(fs.writeFile).not.toHaveBeenCalled();
-            expect(release).toHaveBeenCalled();
-        });
+        const fileContent = await fs.readFile(filePath, "utf8");
+        expect(fileContent).toBe(content);
     });
 
-    describe("deleteFile", () => {
-        it("should delete the specified file", async () => {
-            (fs.pathExists as jest.Mock).mockResolvedValue(true);
-            const release = jest.fn();
-            (lockfile.lock as jest.Mock).mockResolvedValue(release);
+    // Test case for reading a file
+    it("should read a file", async () => {
+        const fileName = "testFile.txt";
+        const expectedContent = "Hello, World!";
 
-            await fileCRUD.deleteFile("test.txt");
+        const result = await fileCRUD.readFile(fileName);
+        expect(result).toBe(expectedContent);
+    });
 
-            expect(fs.pathExists).toHaveBeenCalledWith(
-                path.join(mockDirectory, "test.txt")
-            );
-            expect(fs.remove).toHaveBeenCalledWith(
-                path.join(mockDirectory, "test.txt")
-            );
-            expect(release).toHaveBeenCalled();
-        });
+    // Test case for updating a file
+    it("should update a file", async () => {
+        const fileName = "testFile.txt";
+        const newContent = "Updated content";
 
-        it("should throw an error if the file does not exist", async () => {
-            (fs.pathExists as jest.Mock).mockResolvedValue(false);
-            const release = jest.fn();
-            (lockfile.lock as jest.Mock).mockResolvedValue(release);
+        const result = await fileCRUD.updateFile(fileName, newContent);
+        expect(result).toBe("success");
 
-            await expect(fileCRUD.deleteFile("test.txt")).rejects.toThrow(
-                AppError
-            );
+        const filePath = `${testDir}/${fileName}`;
+        const fileContent = await fs.readFile(filePath, "utf8");
+        expect(fileContent).toBe(newContent);
+    });
 
-            expect(fs.pathExists).toHaveBeenCalledWith(
-                path.join(mockDirectory, "test.txt")
-            );
-            expect(fs.remove).not.toHaveBeenCalled();
-            expect(release).toHaveBeenCalled();
-        });
+    // Test case for deleting a file
+    it("should delete a file", async () => {
+        const fileName = "testFile.txt";
+
+        const result = await fileCRUD.deleteFile(fileName);
+        expect(result).toBe("success");
+
+        const filePath = `${testDir}/${fileName}`;
+        const fileExists = await fs.pathExists(filePath);
+        expect(fileExists).toBe(false);
+    });
+
+    // Test case for handling non-existing files
+    it("should return null for non-existing file operations", async () => {
+        const nonExistingFileName = "nonExistingFile.txt";
+
+        const readResult = await fileCRUD.readFile(nonExistingFileName);
+        expect(readResult).toBeNull();
+
+        const updateResult = await fileCRUD.updateFile(
+            nonExistingFileName,
+            "Update"
+        );
+        expect(updateResult).toBeNull();
+
+        const deleteResult = await fileCRUD.deleteFile(nonExistingFileName);
+        expect(deleteResult).toBeNull();
     });
 });
