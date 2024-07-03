@@ -18,7 +18,7 @@ export default class Socket {
     }
 
     /**
-     * Initializes default socket event listeners for handling connections, disconnections, and custom events.
+     * Initializes default socket event listeners for handling connections, disconnections, and errors.
      * @private
      */
     private initializeSocketListeners(): void {
@@ -29,12 +29,6 @@ export default class Socket {
                 logger.info(
                     `Client disconnected: ${socket.id}, reason: ${reason}`
                 );
-            });
-
-            socket.on("customEvent", (data: any) => {
-                logger.info(`Received customEvent from ${socket.id}:`, data);
-                // Broadcast the event to all connected clients
-                this.io.emit("customEvent", data);
             });
 
             socket.on("error", (error: any) => {
