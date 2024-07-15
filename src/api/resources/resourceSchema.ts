@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { paginationSchema } from "@/lib/validations";
 
 export const resourceSchemaRequest = z.object({
     name: z
@@ -13,6 +14,10 @@ export const resourceSchemaResponse = resourceSchemaRequest.extend({
     updatedAt: z.date(),
     createdAt: z.date(),
     id: z.number().int().positive(),
+});
+
+export const resourcesQuerySchema = paginationSchema.extend({
+    name: z.string().default(""),
 });
 
 export type ResourceResponse = z.infer<typeof resourceSchemaResponse>;
