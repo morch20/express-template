@@ -5,6 +5,10 @@ import Socket from "./Socket";
 // You would have to import server from here in src/index.ts
 export const server = createServer(app);
 
-const socket = new Socket(server);
+const socket = new Socket(server, {
+    cors: {
+        origin: "*",
+    },
+});
 
 export default socket;
