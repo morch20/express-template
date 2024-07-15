@@ -1,6 +1,6 @@
 import validate from "@/middlewares/validate";
 import { Router } from "express";
-import { paramsSchema, paginationSchema } from "@/lib/validations";
+import { paramsSchema } from "@/lib/validations";
 import { resourceSchema, resourceController } from "../resources";
 
 const resourceRoute = Router();
@@ -11,7 +11,10 @@ resourceRoute
         validate(resourceSchema.resourceSchemaRequest, "body"),
         resourceController.createResource
     )
-    .get(validate(paginationSchema, "query"), resourceController.getResources);
+    .get(
+        validate(resourceSchema.resourcesQuerySchema, "query"),
+        resourceController.getResources
+    );
 
 // eslint-disable-next-line drizzle/enforce-delete-with-where
 resourceRoute
