@@ -1,6 +1,8 @@
-import { Server } from "socket.io";
+import { Server, ServerOptions, Socket as WebSocket } from "socket.io";
 import http from "http";
 import { logger } from "@/lib/logger";
+import { ExtendedError } from "socket.io/dist/namespace";
+import { DefaultEventsMap } from "socket.io/dist/typed-events";
 
 /**
  * Socket class to manage Socket.IO server operations.
@@ -11,9 +13,10 @@ export default class Socket {
     /**
      * Creates an instance of Socket.
      * @param {http.Server} server - The HTTP server instance to attach Socket.IO to.
+     * @param {Partial<ServerOptions>} opts - The Socket.io configuration options.
      */
-    constructor(server: http.Server) {
-        this.io = new Server(server);
+    constructor(server: http.Server, opts: Partial<ServerOptions> = {}) {
+        this.io = new Server(server, opts);
         this.initializeSocketListeners();
     }
 
@@ -34,6 +37,27 @@ export default class Socket {
             socket.on("error", (error: any) => {
                 logger.error(`Error from ${socket.id}: ${error}`);
             });
+        });
+    }
+
+    /**
+     * Adds middleware to the Socket.IO server. Middleware functions are executed
+     * before the connection is completed. They can be used for tasks such as authentication.
+     * @param {Function} callBack - The middleware function to execute.
+     */
+    public middleware(
+        callBack: (
+            socket: WebSocket<
+                DefaultEventsMap,
+                DefaultEventsMap,
+                DefaultEventsMap,
+                any
+            >,
+            next: (err?: ExtendedError | undefined) => void
+        ) => void
+    ): void {
+        this.io.use((socket, next) => {
+            callBack(socket, next);
         });
     }
 
