@@ -22,21 +22,17 @@ const envVariablesSchema = z.object({
     LOG_LEVEL: z
         .enum(["fatal", "error", "warn", "info", "debug"])
         .default("info"),
-    PORT: z.number().positive(),
+    PORT: z.coerce.number().positive(),
     DB_URL: z.string().describe("Database connection url"),
     DB_HOST: z.string().describe("Database host. Ex: localhost or 'db'."),
-    DB_PORT: z.number().positive(),
+    DB_PORT: z.coerce.number().positive(),
     DB_DATABASE_NAME: z.string().trim().min(1),
     DB_USERNAME: z.string().trim().min(1),
     DB_PASSWORD: z.string().trim().min(1),
     REDIS_URL: z.string().trim().min(1).describe("Redis connection url"),
 });
 
-const envVariables = envVariablesSchema.safeParse({
-    ...process.env,
-    PORT: parseInt(process.env.PORT || "5000", 10),
-    DB_PORT: parseInt(process.env.DB_PORT || "5432", 10),
-});
+const envVariables = envVariablesSchema.safeParse(process.env);
 if (!envVariables.success) {
     throw new Error(`Config validation error: ${envVariables.error.message}`);
 }
