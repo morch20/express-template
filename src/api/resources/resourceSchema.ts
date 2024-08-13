@@ -1,19 +1,30 @@
 import { z } from "zod";
 import { paginationSchema } from "@/lib/validations";
+import { resource } from "@/db/schema";
+import { createSelectSchema } from "drizzle-zod";
 
-export const resourceSchemaRequest = z.object({
+// * Gives type safety and autocomplete for the resources columns
+
+const baseResourceSchema = createSelectSchema(resource, {
     name: z
         .string()
         .trim()
         .min(2, "Name must be 2 or more characters long.")
         .max(225),
     ip: z.string().trim().ip(),
-});
-
-export const resourceSchemaResponse = resourceSchemaRequest.extend({
     updatedAt: z.date(),
     createdAt: z.date(),
     id: z.number().int().positive(),
+});
+
+export const resourceSchemaRequest = baseResourceSchema.omit({
+    id: true,
+    createdAt: true,
+    updatedAt: true,
+});
+
+export const resourceSchemaResponse = baseResourceSchema.omit({
+    // password: true,
 });
 
 export const resourcesQuerySchema = paginationSchema.extend({
