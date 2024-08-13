@@ -1,6 +1,6 @@
 import { AppError } from "@/lib/errors";
-import { catchAsync } from "@/lib/utils/functions";
 import httpStatus from "http-status";
+import { catchAsync } from "@/lib/utils/functions";
 import resourceService from "./resource.services";
 
 const createResource = catchAsync(async (req, res) => {

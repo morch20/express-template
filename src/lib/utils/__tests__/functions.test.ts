@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextFunction, Request, Response } from "express";
-import { catchAsync, pause } from "../functionts";
+import { catchAsync, pause } from "../functions";
 
 describe("Testing utilities functions", () => {
     describe("Testing pause function", () => {

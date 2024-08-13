@@ -22,7 +22,7 @@ app.use(helmet());
 app.use(express.json());
 
 // * Delegate anything possible (e.g. gzip, SSL, throttling requests or rate limiting, static content)
-// * to a reverse proxy like Nginx, HAproxy or cloud vendor services instead 
+// * to a reverse proxy like Nginx, HAproxy or cloud vendor services instead
 // * since Node is quite bad at doing CPU intensive tasks
 // gzip compression
 app.use(compression());
