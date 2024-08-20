@@ -33,3 +33,17 @@ export const resourcesQuerySchema = paginationSchema.extend({
 
 export type ResourceResponse = z.infer<typeof resourceSchemaResponse>;
 export type ResourceRequest = z.infer<typeof resourceSchemaRequest>;
+
+// * Example!
+
+// In the constants file
+export const OPTIONS = ["value1", "value2", "value3"] as const;
+
+// Using Zod
+export const optionsSchema = z.enum(OPTIONS).default("value1");
+
+// Types! this is equal to: type Options = "value1" | "value2" | "value3"
+export type Options = (typeof OPTIONS)[number];
+
+// or you could do. this is equal to: type Options2 = "value1" | "value2" | "value3"
+export type Options2 = z.infer<typeof optionsSchema>
