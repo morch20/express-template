@@ -21,6 +21,7 @@
         "eamodio.gitlens",
         "codeium.codeium",
         "ritwickdey.liveserver",
-        "ms-vscode-remote.remote-wsl"
+        "ms-vscode-remote.remote-wsl",
+        "yoavbls.pretty-ts-errors"
     ]
 }
