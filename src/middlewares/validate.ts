@@ -32,10 +32,10 @@ export default function validate(
         } catch (err) {
             if (err instanceof ZodError) {
                 // Format Zod errors into a more readable structure
-                const formattedErrors = err.errors.map((e) => ({
-                    field: e.path.join("."),
-                    message: e.message,
-                }));
+                const formattedErrors: { [key: string]: string } = {};
+                err.errors.forEach((e) => {
+                    formattedErrors[e.path.join(".")] = e.message;
+                });
 
                 next(
                     new AppError(
