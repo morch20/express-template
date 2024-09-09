@@ -21,7 +21,7 @@ export default class AppError extends Error {
         message: string,
         statusCode: keyof HttpStatus,
         showStack: boolean = false,
-        metadata: object = {}
+        metadata: { [key: string]: string } = {}
     ) {
         super(message);
         this.message = message;
