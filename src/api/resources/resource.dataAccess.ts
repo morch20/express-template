@@ -112,12 +112,9 @@ const createResource = async (values: ResourceRequest) => {
         return result;
     } catch (error) {
         if (error instanceof PostgresError && error.code === "23505") {
-            throw new AppError("Duplicate key", httpStatus.BAD_REQUEST, false, [
-                {
-                    field: "name",
-                    message: "Can not have an already existing name",
-                },
-            ]);
+            throw new AppError("Duplicate key", httpStatus.BAD_REQUEST, false, {
+                name: "Can not have an already existing name",
+            });
         } else {
             throw error;
         }
@@ -140,12 +137,9 @@ const updateResource = async (id: number, values: ResourceRequest) => {
         return result;
     } catch (error) {
         if (error instanceof PostgresError && error.code === "23505") {
-            throw new AppError("Duplicate key", httpStatus.BAD_REQUEST, false, [
-                {
-                    field: "name",
-                    message: "Can not have an already existing name",
-                },
-            ]);
+            throw new AppError("Duplicate key", httpStatus.BAD_REQUEST, false, {
+                name: "Can not have an already existing name",
+            });
         } else {
             throw error;
         }
