@@ -46,4 +46,4 @@ export const optionsSchema = z.enum(OPTIONS).default("value1");
 export type Options = (typeof OPTIONS)[number];
 
 // or you could do. this is equal to: type Options2 = "value1" | "value2" | "value3"
-export type Options2 = z.infer<typeof optionsSchema>
+export type Options2 = z.infer<typeof optionsSchema>;
