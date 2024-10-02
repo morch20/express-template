@@ -1,4 +1,3 @@
-import "module-alias/register";
 import config from "@/lib/configs/config";
 import { logger } from "@/lib/logger";
 import app from "./app";

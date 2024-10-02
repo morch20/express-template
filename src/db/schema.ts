@@ -23,3 +23,8 @@ export const resource = pgTable(
         nameIndex: index("nameIndex").on(table.name),
     })
 );
+
+// * Type inference from tables
+
+// type ResourcesI = typeof resource.$inferInsert;
+// type ResourcesS = typeof resource.$inferSelect;
