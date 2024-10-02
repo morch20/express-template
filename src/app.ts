@@ -1,11 +1,11 @@
-import express, { Response, Request } from "express";
+import express, { Response, Request, NextFunction } from "express";
 import helmet from "helmet";
 import cors from "cors";
 import compression from "compression";
 import httpStatus from "http-status";
 import config from "@/lib/configs/config";
-import { expressLogger } from "@/lib/logger";
-import { AppError, ErrorHandler } from "@/lib/errors";
+import { expressLogger, logger } from "@/lib/logger";
+import { AppError, errorHandler } from "@/lib/errors";
 import api from "./api";
 
 const app = express();
@@ -50,6 +50,21 @@ app.all("*", (req, res, next) => {
 });
 
 // handle errors
-app.use(ErrorHandler);
+app.use(
+    (
+        err: AppError,
+        req: Request,
+        res: Response,
+        // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+        next: NextFunction
+    ) => {
+        const { handledError, isUnknownError } = errorHandler(err);
+
+        if (isUnknownError) logger.error("Unknown error has occurred!", err);
+        else logger.warning(err.message, err);
+
+        res.status(handledError.statusCode).json(handledError);
+    }
+);
 
 export default app;
