@@ -4,7 +4,7 @@ export type HandledError = {
     statusCode: number;
     message: string;
     errorType: string;
-    data: object;
+    data: { [key: string]: string };
 };
 
 export class AppError extends Error {
@@ -14,7 +14,7 @@ export class AppError extends Error {
 
     private errorType: string;
 
-    private metadata: object;
+    private metadata: { [key: string]: string };
 
     /**
      * Creates an instance of AppError.
